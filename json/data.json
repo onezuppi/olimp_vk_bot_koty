@@ -1,0 +1,79 @@
+{
+    "ИТМО_информатика": {
+        "Date": "10:11-14:11",
+        "url": "https://olymp.ifmo.ru/ru/p/olymp-it-19-20/"
+    },
+    "ИТМО_математика": {
+        "Date": "20:11-11:12",
+        "url": "https://olymp.ifmo.ru/ru/p/olymp-math-19-20/"
+    },
+    "ИТМО_информатика_команда": {
+        "Date": "23:11-23:11",
+        "url": "http://neerc.ifmo.ru/school/io/index.html",
+        "time": "16-00"
+    },
+    "Innopolis_Open_математика": {
+        "Date": "15:12-15:12",
+        "url": "https://olymp.innopolis.ru/ooui/oui-2019-20",
+        "time": "12-00"
+    },
+    "Innopolis_Open_Информатика": {
+        "Date": "14:12-14:12",
+        "url": "https://olymp.innopolis.ru/ooui/oui-2019-20",
+        "time": "17-00"
+    },
+    "Innopolis_Open_Информационная_безопасность": {
+        "Date": "7:12-8:12",
+        "url": "https://olymp.innopolis.ru/ooui/oui-2019-20"
+    },
+    "Открытая_олимпиада_по_программированию": {
+        "Date": "15:11-15:01",
+        "url": "https://olympiads.ru/"
+    },
+    "Когнитивные_технологии": {
+        "Date": "16:12-22:12",
+        "url": "http://olymp.misis.ru/"
+    },
+    "Путь_к_успеху": {
+        "Date": "15:11-31:01",
+        "url": "https://dpklms.magtu.ru"
+    },
+    "Газпром": {
+        "Date": "15:11-12:01",
+        "url": "https://olympiad.gazprom.ru/timetable "
+    },
+    "ТехноКубок 3 Этап": {
+        "Date": "24:11-24:11",
+        "url": "https://codeforces.com/contests ",
+        "time": "11-00"
+    },
+    "ТехноКубок 4 Этап": {
+        "Date": "14:12-14:12",
+        "url": "https://codeforces.com/contests ",
+        "time": "11-00"
+    },
+    "НИУ_«БелГУ»": {
+        "Date": "01:12-29:02",
+        "url": "https://talant.bsu.edu.ru/blocks/olympiads/?lvlid=4 "
+    },
+    "УрФУ_«Изумруд»": {
+        "Date": "15:11-16:02",
+        "url": "https://izumrud.urfu.ru/ru/main/it/ "
+    },
+    "Московская_предпрофессиональная_олимпиада": {
+        "Date": "01:12-25:12",
+        "url": "http://predprof.olimpiada.ru/ "
+    },
+    "«Миссия_выполнима._Твое_призвание_-_финансист!»": {
+        "Date": "9:12-29:01",
+        "url": "http://www.fa.ru/Cabinet/_layouts/15/FA/Cabinet/Home.aspx "
+    },
+    "Интернет-карусель_по_информатике": {
+        "Date": "4:12-5:12",
+        "url": "http://karusel.desc.ru/20192020 "
+    },
+    "«Смарт_Старт»": {
+        "Date": "10:01-15:01",
+        "url": "http://www.cs.vsu.ru/smart_start/ "
+    }
+}
