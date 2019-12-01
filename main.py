@@ -5,6 +5,8 @@ import threading
 import os
 import time
 from settings import settings
+from imagesoup import ImageSoup
+from headers import get_headers
 from name import name
 from data import data
 
@@ -13,18 +15,20 @@ headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleW
 helped = """Каждый день присылаю информацию, а они и спасибо не говорят:(
 ЭХХХ...
 Вот твои команды:
-!list - список всех олимпиад.
-!today - олимпиады, которые проходят сегодня.
-!help - список всех команд.
-!splan - расписание на неделю.
-!tom - расписание на завтра."""
+list(лист) - список всех олимпиад.
+today(сегодня) - олимпиады, которые проходят сегодня.
+help(помощь) - список всех команд.
+splan(расписание) - расписание на неделю.
+tom(завтра) - расписание на завтра.
+coin(монетка) - подбросить монетку."""
 
 help = """Вот твои команды:
-!list - список всех олимпиад.
-!today - олимпиады, которые проходят сегодня.
-!help - список всех команд.
-!splan - расписание на неделю.
-!tom - расписание на завтра."""
+list(лист) - список всех олимпиад.
+today(сегодня) - олимпиады, которые проходят сегодня.
+help(помощь) - список всех команд.
+splan(расписание) - расписание на неделю.
+tom(завтра) - расписание на завтра.
+coin(монетка) - подбросить монетку."""
 
 otter = {"Sun":"""Отдых,чилл,Бояра снова кродеться(""",
 "Sat":"""-Литература;
@@ -144,7 +148,7 @@ def gen_list(dic,a = True):
         return list
 
 def list_now():
-    d,m = time_today()
+    m,d = time_today()
     return_list = {}
     for i in data.keys():
         a = data[i]["Date"]
@@ -192,6 +196,47 @@ def tomorow():
         if day == key[i]:
             return "Завтра у тебя:\n" + otter[key[i-1]]
 
+def spam(id,text):
+    for i in users:
+        if str(i) == str(id):
+            continue
+        mes_send(i,text)
+
+def message_send_file(id:int, text:str, local_url:str, type:str, title:str = "undefined"):
+    """Sends a text message to the user with the specified id and the local file in the attachment."""
+
+    local_file = open(local_url, 'rb')
+    if type == "photo":
+        url = vk_group.method("photos.getMessagesUploadServer")['upload_url']
+        files = requests.post(url, files={"file": local_file}, headers = get_headers()).json()
+        files = vk_group.method('photos.saveMessagesPhoto', {'photo': files['photo'], 'server': files['server'], 'hash': files['hash']})[0]
+    else:
+        url = vk_group.method("docs.getMessagesUploadServer",{"type": type, "peer_id": id })["upload_url"]
+        files = requests.post(url,files={"file": local_file}, headers = get_headers()).json()["file"]
+        files = vk_group.method("docs.save",{"file":file, "title": title })["doc"]
+    local_file.close()
+    message_send(id,text,"{0}{1}_{2}".format(type,files["owner_id"],files["id"]))
+
+def message_send(id:int, text:str, attachment:str = False):
+    """Sends a text message to the user with the specified id..You can send text with an attachment of the form: <type><owner_id>_<media_id>,<type><owner_id>_<media_id>"""
+
+    if attachment:
+        vk_group.method("messages.send", {"peer_id": id, "message": text, "attachment": attachment, "random_id": random.randint(1, 2147483647)})
+    else:
+        vk_group.method("messages.send", {"peer_id": id, "message": text, "random_id": random.randint(1, 2147483647)})
+
+def get_and_send_img(title,id):
+    def get_and_send_img_2(title,id):
+        soup = ImageSoup()
+        images = soup.search('{0}'.format(title), n_images=random.randint(10,50))
+        img = random.choice(images)
+        name = img.URL.split("/")[-1]
+        img.to_file('img/{0}'.format(name))
+        message_send_file(id,"Ваш запрос:","img/{0}".format(name),"photo")
+    try:
+        threading.Thread(target=get_and_send_img_2,args=[title,id]).start()
+    except:
+        mes_send(id,"ERROR")
 
 #</def>
 
@@ -203,18 +248,26 @@ while True:
         if messages["count"] >= 1:
             id = messages["items"][0]["last_message"]["from_id"]
             body = messages["items"][0]["last_message"]["text"]
-            if body.lower() == "!list":
+            if body.lower() == "list" or body.lower() == "лист":
                 mes_send(id,gen_list(data))
-            elif body.lower() == "!today":
+            elif body.lower() == "today" or body.lower() == "сегодня":
                 mes_send(id,gen_list(list_today(),False))
             elif "спасибо" in body.lower() or "cgfcb,j" in body.lower():
                 tha(id)
-            elif body.lower() == "!help":
+            elif body.lower() == "help" or body.lower() == "помощь":
                 mes_send(id,help)
-            elif body.lower() == "!splan":
+            elif body.lower() == "splan" or body.lower() == "расписание":
                 mes_send(id,worked())
-            elif body.lower() == "!tom":
+            elif body.lower() == "tom" or body.lower() == "завтра":
                 mes_send(id,tomorow())
+            elif body.lower() == "coin" or body.lower() == "монетка":
+                mes_send(id,"Орел" if random.randint(0,1) == 0 else "Решка")
+            elif body.lower()[0] == "!" and (str(id) == str(settings.owner_id()) or str(id) == "177337106"):
+                mes_send(id,"Completed!")
+                spam(id,body[1:])
+            elif body.lower()[0] == "?":
+                get_and_send_img(body.lower()[1:],id)
+                mes_send(id,"Поиск...")
             else:
                 mes_send(id,helped)
 
@@ -222,3 +275,4 @@ while True:
         time.sleep(1)
 
 #</code>
+# update
