@@ -14,11 +14,56 @@ helped = """Каждый день присылаю информацию, а он
 ЭХХХ...
 Вот твои команды:
 !list - список всех олимпиад.
-!today - олимпиады, которые проходят сегодня."""
+!today - олимпиады, которые проходят сегодня.
+!help - список всех команд.
+!splan - расписание на неделю.
+!tom - расписание на завтра."""
 
 help = """Вот твои команды:
 !list - список всех олимпиад.
-!today - олимпиады, которые проходят сегодня."""
+!today - олимпиады, которые проходят сегодня.
+!help - список всех команд.
+!splan - расписание на неделю.
+!tom - расписание на завтра."""
+
+otter = {"Sun":"""Отдых,чилл,Бояра снова кродеться(""",
+"Sat":"""-Литература;
+-Литература;
+-Экономика;
+-Экономика;
+-Английский язык;
+-Астрономия.""",
+"Fri": """-Алгебра;
+-Алгебра;
+-Физ-ра;
+-Физ-ра;
+-Физика;
+-ОБЖ(География).""",
+"Thu": """-Биология;
+-Информатика;
+-Физ-ра;
+-История;
+-Обществознание;
+-Обществознание.""",
+"Wed" : """-Алгебра;
+-Алгебра;
+-Английский язык;
+-Английский язык;
+-Физика;
+-Физика.""",
+"Tue" : """-Геометрия;
+-Геометрия;
+-Русский язык;
+-Литература;
+-География;
+-Химия.""",
+"Mon": """-Физика;
+-Физика;
+-История;
+-История;
+-Право;
+-Право;
+-Обществознание."""}
 #</meta data>
 
 #<load settings>
@@ -27,15 +72,15 @@ info = name()
 inf = data()
 fut_dat = inf.future()
 data = inf.data()
-users = ["177337106",settings.owner_id()]
-"236705719"
+users = ["177337106",settings.owner_id(),"236705719"]
+# users = [settings.owner_id()]
 #</load settings>
 
 #<create session>
-assert (settings.api().replace(" ","") != "")
+# assert (settings.api().replace(" ","") != "")
 assert (settings.mes_api().replace(" ","") != "")
-vk = vk_api.VkApi(token=settings.api())
-vk._auth_token()
+# vk = vk_api.VkApi(token=settings.api())
+# vk._auth_token()
 vk_group = vk_api.VkApi(token=settings.mes_api())
 vk_group._auth_token()
 #</create session>
@@ -118,15 +163,35 @@ def tha(id):
 def main():
     while True:
         if time_now() == (7,30):
+            day = time.ctime().split()[0]
             for i in users:
                 mes_send(i,gen_list(list_today(),False))
+                vk_group.method("messages.send", {"peer_id": i, "attachment": "video-188799304_456239017" ,"random_id": random.randint(1, 2147483647)})
+                mes_send(i,"\nУ тебя сегодня:" + worked(day))
         l = list_now()
         if l:
             for i in users:
                 x,y = time_now()
                 if(y == 0):
                     mes_send(i,gen_list(l,False))
-        time.sleep(35)
+        time.sleep(45)
+
+def worked(day = False):
+    if day:
+        return "\nРасписание:\n\n" + otter[day] + "\n"
+    else:
+        mes = "Расписание:\n\n"
+        for i in list(otter.keys())[::-1]:
+            mes += i + ":\n" + otter[i] + "\n\n"
+        return mes
+
+def tomorow():
+    day = time.ctime().split()[0]
+    key = list(otter.keys())
+    for i in range(len(key)):
+        if day == key[i]:
+            return "Завтра у тебя:\n" + otter[key[i-1]]
+
 
 #</def>
 
@@ -142,10 +207,14 @@ while True:
                 mes_send(id,gen_list(data))
             elif body.lower() == "!today":
                 mes_send(id,gen_list(list_today(),False))
-            elif "спасибо" in body.lower():
+            elif "спасибо" in body.lower() or "cgfcb,j" in body.lower():
                 tha(id)
             elif body.lower() == "!help":
                 mes_send(id,help)
+            elif body.lower() == "!splan":
+                mes_send(id,worked())
+            elif body.lower() == "!tom":
+                mes_send(id,tomorow())
             else:
                 mes_send(id,helped)
 
