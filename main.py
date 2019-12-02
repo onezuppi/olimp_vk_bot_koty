@@ -4,40 +4,44 @@ import random
 import threading
 import os
 import time
+import words
+import gamed
 from settings import settings
 from imagesoup import ImageSoup
 from headers import get_headers
+from PIL import Image,ImageDraw
 from name import name
 from data import data
 
+
 #<meta data>
+alp = "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM"
 headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
 helped = """Каждый день присылаю информацию, а они и спасибо не говорят:(
 ЭХХХ...
 Вот твои команды:
-<<<<<<<
 list(лист) - список всех олимпиад.
 today(сегодня) - олимпиады, которые проходят сегодня.
 help(помощь) - список всех команд.
 splan(расписание) - расписание на неделю.
 tom(завтра) - расписание на завтра.
-coin(монетка) - подбросить монетку."""
-=======
-!list - список всех олимпиад.
-!today - олимпиады, которые проходят сегодня.
-!help - список всех команд.
-!splan - расписание на неделю.
-!tom - расписание на завтра."""
->>>>>>>
+coin(монетка) - подбросить монетку.
+game(игра) - начать философскую игру.
+end(конец) - выйти из игры.
+leaders (лидеры) - таблица лидеров.
+joke (шутка) - рандомная тупая шутка."""
 
 help = """Вот твои команды:
-<<<<<<<
 list(лист) - список всех олимпиад.
 today(сегодня) - олимпиады, которые проходят сегодня.
 help(помощь) - список всех команд.
 splan(расписание) - расписание на неделю.
 tom(завтра) - расписание на завтра.
-coin(монетка) - подбросить монетку."""
+coin(монетка) - подбросить монетку.
+game(игра) - начать философскую игру.
+end(конец) - выйти из игры.
+leaders (лидеры) - таблица лидеров.
+joke (шутка) - рандомная тупая шутка."""
 
 otter = {"Sun":"""Отдых,чилл,Бояра снова кродеться(""",
 "Sat":"""-Литература;
@@ -77,52 +81,9 @@ otter = {"Sun":"""Отдых,чилл,Бояра снова кродеться("
 -Право;
 -Право;
 -Обществознание."""}
-=======
-!list - список всех олимпиад.
-!today - олимпиады, которые проходят сегодня.
-!help - список всех команд.
-!splan - расписание на неделю.
-!tom - расписание на завтра."""
-
-otter = {"Sun":"""Отдых,чилл,Бояра снова кродеться(""",
-"Sat":"""-Литература;
--Литература;
--Экономика;
--Экономика;
--Английский язык;
--Астрономия.""",
-"Fri": """-Алгебра;
--Алгебра;
--Физ-ра;
--Физ-ра;
--Физика;
--ОБЖ(География).""",
-"Thu": """-Биология;
--Информатика;
--Физ-ра;
--История;
--Обществознание;
--Обществознание.""",
-"Wed" : """-Алгебра;
--Алгебра;
--Английский язык;
--Английский язык;
--Физика;
--Физика.""",
-"Tue" : """-Геометрия;
--Геометрия;
--Русский язык;
--Литература;
--География;
--Химия.""",
-"Mon": """-Физика;
--Физика;
--История;
--История;
--Право;
--Право;
--Обществознание."""}
->>>>>>>
+user_data = {}
+user_data_image = {}
+user_score = {}
 #</meta data>
 
 #<load settings>
@@ -227,6 +188,7 @@ def main():
                 mes_send(i,gen_list(list_today(),False))
                 vk_group.method("messages.send", {"peer_id": i, "attachment": "video-188799304_456239017" ,"random_id": random.randint(1, 2147483647)})
                 mes_send(i,"\nУ тебя сегодня:" + worked(day))
+                os.system("rm img/*")
         l = list_now()
         if l:
             for i in users:
@@ -235,7 +197,6 @@ def main():
                     mes_send(i,gen_list(l,False))
         time.sleep(45)
 
-<<<<<<<
 def worked(day = False):
     if day:
         return "\nРасписание:\n\n" + otter[day] + "\n"
@@ -286,7 +247,7 @@ def get_and_send_img(title,id):
         soup = ImageSoup()
         images = soup.search('{0}'.format(title), n_images=random.randint(10,50))
         img = random.choice(images)
-        name = img.URL.split("/")[-1]
+        name = "".join(random.choices(alp,k=12)) + ".jpg"
         img.to_file('img/{0}'.format(name))
         message_send_file(id,"Ваш запрос:","img/{0}".format(name),"photo")
     try:
@@ -294,25 +255,53 @@ def get_and_send_img(title,id):
     except:
         mes_send(id,"ERROR")
 
-=======
-def worked(day = False):
-    if day:
-        return "\nРасписание:\n\n" + otter[day] + "\n"
-    else:
-        mes = "Расписание:\n\n"
-        for i in list(otter.keys())[::-1]:
-            mes += i + ":\n" + otter[i] + "\n\n"
-        return mes
 
-def tomorow():
-    day = time.ctime().split()[0]
-    key = list(otter.keys())
-    for i in range(len(key)):
-        if day == key[i]:
-            return "Завтра у тебя:\n" + otter[key[i-1]]
+def resize_image(input,output):
+    image = Image.open(input)
+    width, height = image.size
+    draw = ImageDraw.Draw(image)
+    pix = image.load()
+    for i in range(width):
+        for j in range(height):
+            a = pix[i, j][0]
+            b = pix[i, j][1]
+            c = pix[i, j][2]
+            S = (a + b + c) // 3
+            draw.point((i, j), (S, S, S))
+    resize = image.resize((int(width*0.05),int(height*0.05)))
+    resize = resize.resize((int(width),int(height)))
+    resize.save(output)
+
+def game(id,body):
+    if(user_data[id] != True):
+        if(body == user_data[id].lower()):
+            message_send_file(id,"Пральна",user_data_image[id],"photo")
+            gamed.score_pLus(id)
+            mes_send(id,"Ваш счет: {0}.".format(gamed.get(id)))
+        else:
+            message_send_file(id,"Мимо! Это " + user_data[id],user_data_image[id],"photo")
+        user_data[id] = True
+    word = words.get_word()
+    soup = ImageSoup()
+    try:
+        images = soup.search('{0}'.format(word), n_images=random.randint(10,50))
+        img = random.choice(images)
+        name = "".join(random.choices(alp,k=12)) + ".png"
+        img.to_file('img/{0}'.format(name))
+        new_name = "img/new_" + name
+        resize_image('img/{0}'.format(name),new_name)
+        message_send_file(id,"",new_name,"photo")
+        user_data[id] = word
+        user_data_image[id] = f"img/{name}"
+    except:
+        game(id,body)
+
+def joke(id):
+    st = "Шутка:\n"
+    f = requests.post("http://freegenerator.ru/shutok",data={"type":"shutok"}).json()["text"]
+    mes_send(id,st + f)
 
 
->>>>>>>
 #</def>
 
 #<code>
@@ -323,7 +312,14 @@ while True:
         if messages["count"] >= 1:
             id = messages["items"][0]["last_message"]["from_id"]
             body = messages["items"][0]["last_message"]["text"]
-            if body.lower() == "list" or body.lower() == "лист":
+            if body.lower() == "end" or body.lower() == "конец":
+                user_data[id] = False
+                mes_send(id,"Игра завершена.")
+            elif body.lower() == "leaders" or body.lower() == "лидеры":
+                mes_send(id,gamed.get_leaderboard())
+            elif user_data.get(id):
+                game(id,body.lower())
+            elif body.lower() == "list" or body.lower() == "лист":
                 mes_send(id,gen_list(data))
             elif body.lower() == "today" or body.lower() == "сегодня":
                 mes_send(id,gen_list(list_today(),False))
@@ -331,7 +327,6 @@ while True:
                 tha(id)
             elif body.lower() == "help" or body.lower() == "помощь":
                 mes_send(id,help)
-<<<<<<<
             elif body.lower() == "splan" or body.lower() == "расписание":
                 mes_send(id,worked())
             elif body.lower() == "tom" or body.lower() == "завтра":
@@ -344,17 +339,17 @@ while True:
             elif body.lower()[0] == "?":
                 get_and_send_img(body.lower()[1:],id)
                 mes_send(id,"Поиск...")
-=======
-            elif body.lower() == "!splan":
-                mes_send(id,worked())
-            elif body.lower() == "!tom":
-                mes_send(id,tomorow())
->>>>>>>
+            elif body.lower() == "game" or body.lower() == "игра":
+                if gamed.get(id) == None:
+                    gamed.new_player(id)
+                user_data[id] = True
+                mes_send(id,"Введите 'end', для выхода из игры.\nВаши очки: {0}.\nНачинаем!".format(gamed.get(id)))
+                game(id,body.lower())
+            elif body.lower() == "joke" or body.lower() == "шутка":
+                joke(id)
             else:
                 mes_send(id,helped)
-
-    except Exception as E:
-        time.sleep(1)
-
+    except:
+        pass
 #</code>
 # update
